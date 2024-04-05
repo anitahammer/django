@@ -424,14 +424,9 @@ the ``schema_editor`` provided on these backends; in this case, pass
 
 On databases that do support DDL transactions (SQLite and PostgreSQL),
 ``RunPython`` operations do not have any transactions automatically added
-besides the transactions created for each migration. Thus, on PostgreSQL, for
-example, you should avoid combining schema changes and ``RunPython`` operations
-in the same migration or you may hit errors like ``OperationalError: cannot
-ALTER TABLE "mytable" because it has pending trigger events``.
-
-If you have a different database and aren't sure if it supports DDL
-transactions, check the ``django.db.connection.features.can_rollback_ddl``
-attribute.
+besides the transactions created for each migration. If you have a different
+database and aren't sure if it supports DDL transactions, check the
+``django.db.connection.features.can_rollback_ddl`` attribute.
 
 If the ``RunPython`` operation is part of a :ref:`non-atomic migration
 <non-atomic-migrations>`, the operation will only be executed in a transaction

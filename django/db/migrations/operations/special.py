@@ -195,6 +195,13 @@ class RunPython(Operation):
             # use direct imports, so we go with a documentation approach instead.
             self.code(from_state.apps, schema_editor)
 
+            # We have to force `check_constraints()` to run on databases which
+            # support DDL transactions because user code may have triggered
+            # `check_constraints()` which would make all future constraints checks
+            # DEFERRED. Otherwise, we may hit errors like ``OperationalError: cannot
+            # ALTER TABLE "mytable" because it has pending trigger events``.
+            schema_editor.connection.check()
+
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         if self.reverse_code is None:
             raise NotImplementedError("You cannot reverse this operation")
@@ -202,6 +209,7 @@ class RunPython(Operation):
             schema_editor.connection.alias, app_label, **self.hints
         ):
             self.reverse_code(from_state.apps, schema_editor)
+            schema_editor.connection.check()
 
     def describe(self):
         return "Raw Python operation"
